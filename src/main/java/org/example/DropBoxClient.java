@@ -17,12 +17,14 @@ public class DropBoxClient {
     private final String clientSecret;
     private final String redirectUri;
 
+    //Constructor
     public DropBoxClient(String clientId, String clientSecret, String redirectUri) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
     }
 
+    //Function to encode and
     public static String buildAuthUrl(String clientId, String redirectUri, String scopes) {
         String url = AUTH_BASE
                 + "?response_type=code"
@@ -34,6 +36,7 @@ public class DropBoxClient {
         // token_access_type not requested here (no refresh token)
         return url;
     }
+
 
     public String exchangeCodeForToken(String code) throws Exception {
         String form = "code=" + URLEncoder.encode(code, StandardCharsets.UTF_8)

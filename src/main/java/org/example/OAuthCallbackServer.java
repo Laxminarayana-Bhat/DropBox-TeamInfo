@@ -17,6 +17,7 @@ public class OAuthCallbackServer {
     private final HttpServer server;
     private final CompletableFuture<String> codeFuture = new CompletableFuture<>();
 
+    //call back config for localhost
     public OAuthCallbackServer(int port) throws IOException {
         server = HttpServer.create(new InetSocketAddress("localhost", port), 0);
         server.createContext("/callback", new CallbackHandler());
@@ -46,6 +47,7 @@ public class OAuthCallbackServer {
             if (query != null && query.contains("code=")) {
                 String code = getParam(query, "code");
                 codeFuture.complete(code);
+                //html tags are used to display message in browser
                 responseHtml = "<html><body><h3>Authorization successful. You can close this window.</h3></body></html>";
             } else if (query != null && query.contains("error=")) {
                 String err = getParam(query, "error");

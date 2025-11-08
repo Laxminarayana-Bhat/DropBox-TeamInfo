@@ -5,13 +5,13 @@ import java.util.concurrent.TimeUnit;
 public class Main {
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.err.println("Usage: java -jar DropBox-TeamInfo-1.0-SNAPSHOT.jar <CLIENT_ID> <CLIENT_SECRET> [port]");
+            System.err.println("Usage: java -jar target/DropBox-TeamInfo-1.0-SNAPSHOT.jar <CLIENT_ID> <CLIENT_SECRET> [port] (Port must be registered in the Dropbox UI)");
             System.exit(1);
         }
 
         String clientId = args[0].trim();
         String clientSecret = args[1].trim();
-        int port = 45678;//This one must be registered
+        int port = 45678;//This one must be registered, go to AppConsole to add the callback url with correct port num
         if (args.length >= 3) {
             try {
                 port = Integer.parseInt(args[2]);
@@ -26,7 +26,7 @@ public class Main {
         try {
             server = new OAuthCallbackServer(port);
             server.start();
-
+            //Build the auth url
             String authUrl = DropBoxClient.buildAuthUrl(clientId, redirectUri, scopes);
             System.out.println("Open this URL in a browser to authorize the app:");
             System.out.println(authUrl);
@@ -44,17 +44,21 @@ public class Main {
             String code = server.waitForCode(5, TimeUnit.MINUTES);
             System.out.println("Got authorization code.");
 
+            //Client config
             DropBoxClient client = new DropBoxClient(clientId, clientSecret, redirectUri);
             String tokenResponse = client.exchangeCodeForToken(code);
             System.out.println("Token response:\n" + tokenResponse);
 
+            //extract access token from the token response
             String accessToken = client.extractAccessToken(tokenResponse);
             if (accessToken == null) {
                 System.err.println("Failed to extract access_token from token response.");
                 System.exit(2);
             }
 
+            //Call the get_info uri to get the res in str format
             String teamInfo = client.callTeamGetInfo(accessToken);
+            //Output display in console
             System.out.println("\n=== team/get_info response ===");
             System.out.println(teamInfo);
 
